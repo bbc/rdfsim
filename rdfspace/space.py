@@ -16,22 +16,15 @@ class Space(object):
         self._path_to_rdf = 'file:' + path_to_rdf
         self._format = format
         self._property = property
-        self._index = None
-        self._matrix = None
+        self._direct_parents = None
         self.generate_index(self._get_statement_stream())
-        # self.generate_matrix()
 
     def _get_statement_stream(self):
         parser = RDF.Parser(name=self._format)
         return parser.parse_as_stream(self._path_to_rdf)
 
     def generate_index(self, stream):
-        """
-            Generates a dictionary of the form:
-                URI a => list of URIs b such that { URI <self._property>* b }
-            from a set of RDF triples.
-        """
-        if self._index != None:
+        if self._direct_parents != None:
             return
 
         parents = {}
@@ -54,7 +47,7 @@ class Space(object):
         self._direct_parents = parents
 
     def parents(self, uri, done=[]):
-        # We stop after 5 recursions, otherwise we accumulate too much generic junk at the top of the hiearchy
+        # We stop after 5 recursions, otherwise we accumulate too much generic junk at the top of the hierarchy
         if len(done) > 5 or uri in done or not self._direct_parents.has_key(uri):
             return []
         done.append(uri)
