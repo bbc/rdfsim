@@ -17,7 +17,9 @@ class Space(object):
         self._format = format
         self._property = property
         self._index = None
+        self._matrix = None
         self.generate_index(self._get_statement_stream())
+        self.generate_matrix()
 
     def _get_statement_stream(self):
         parser = RDF.Parser(name=self._format)
@@ -45,6 +47,8 @@ class Space(object):
                     index[s] = [o]
                 else:
                     index[s].append(o)
+                if not index.has_key(o):
+                    index[o] = []
                 if not r_index.has_key(o):
                     r_index[o] = [s]
                 else:
@@ -63,3 +67,50 @@ class Space(object):
                 print "Processed " + str(z) + " triples..."
 
         self._index = index
+
+    def generate_matrix(self):
+        if self._matrix != None:
+            return
+        if not self._index:
+            raise Exception("Index not initialised")
+        keys = self._index.keys()
+
+        k = 0
+        uri_index = {}
+        for key in keys:
+            uri_index[key] = k
+            k += 1
+
+        n = len(keys)
+        i = 0
+        k = 0
+        ij = []
+        data = []
+        norms = {}
+        for key in keys:
+            ij.append([i, i])
+            data.append(1)
+            if norms.has_key(i):
+                norms[i].append(k)
+            else:
+                norms[i] = [k]
+            k += 1
+            for uri in self._index[key]:
+                j = uri_index[uri]
+                ij.append([i, j])
+                data.append(1)
+                if norms.has_key(j):
+                    norms[j].append(k)
+                else:
+                    norms[j] = [k]
+                k += 1
+            if i % 100 == 0:
+                print i
+            i += 1
+        for key in norms.keys():
+            p = 1.0 / np.sqrt(len(norms[key]))
+            for k in norms[key]:
+                data[k] *= p
+        ij = np.array(ij).T
+        data = np.array(data)
+        self._matrix = csc_matrix((data, ij), shape=(n,n))

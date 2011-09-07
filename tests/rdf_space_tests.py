@@ -20,4 +20,6 @@ def test_init():
             'http://dbpedia.org/resource/Category:Foo', 
             'http://dbpedia.org/resource/Category:Categories_named_after_television_series'
         ],
+        'http://dbpedia.org/resource/Category:Foo': [],
+        'http://dbpedia.org/resource/Category:New_York_City_in_fiction': [],
     })
