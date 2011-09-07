@@ -5,6 +5,7 @@ from scipy.sparse import *
 from sparsesvd import sparsesvd
 from numpy.linalg import *
 from operator import itemgetter
+from tempfile import mkdtemp
 import RDF
 import pickle
 import os
@@ -82,35 +83,23 @@ class Space(object):
             k += 1
 
         n = len(keys)
+        path = os.path.join(mkdtemp(), 'matrix.dat')
+        matrix = np.memmap(path, dtype='float32', mode='w+', shape=(n,n))
+
         i = 0
-        k = 0
-        ij = []
-        data = []
-        norms = {}
         for key in keys:
-            ij.append([i, i])
-            data.append(1)
-            if norms.has_key(i):
-                norms[i].append(k)
-            else:
-                norms[i] = [k]
-            k += 1
+            matrix[i, i] = 1.0
             for uri in self._index[key]:
                 j = uri_index[uri]
-                ij.append([i, j])
-                data.append(1)
-                if norms.has_key(j):
-                    norms[j].append(k)
-                else:
-                    norms[j] = [k]
-                k += 1
-            if i % 100 == 0:
+                matrix[i, j] = 1.0
+            if i % 1000 == 0:
                 print i
+                # Flushing and reloading
+                del matrix
+                matrix = np.memmap(path, dtype='float32', mode='w+', shape=(n,n)) 
             i += 1
-        for key in norms.keys():
-            p = 1.0 / np.sqrt(len(norms[key]))
-            for k in norms[key]:
-                data[k] *= p
-        ij = np.array(ij).T
-        data = np.array(data)
-        self._matrix = csc_matrix((data, ij), shape=(n,n))
+
+        for j in range(0, n):
+            matrix[:, j] /= norm(matrix[:, j])
+
+        self._matrix = matrix
