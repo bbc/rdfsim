@@ -24,6 +24,11 @@ class Space(object):
         return parser.parse_as_stream(self._path_to_rdf)
 
     def generate_index(self, stream):
+        """
+            Generates a dictionary of the form:
+                URI a => list of URIs b such that { URI <self._property>* b }
+            from a set of RDF triples.
+        """
         if self._index != None:
             return
 
