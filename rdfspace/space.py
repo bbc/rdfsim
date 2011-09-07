@@ -20,7 +20,7 @@ class Space(object):
         self._index = None
         self._matrix = None
         self.generate_index(self._get_statement_stream())
-        self.generate_matrix()
+        # self.generate_matrix()
 
     def _get_statement_stream(self):
         parser = RDF.Parser(name=self._format)
@@ -56,18 +56,24 @@ class Space(object):
                     r_index[o].append(s)
                 if index.has_key(o):
                     index[s].extend(index[o])
-                if r_index.has_key(s):
-                    for r in r_index[s]:
-                        if index.has_key(r):
-                            index[r].extend(index[s])
-                            index[r] = list(Set(index[r]))
                 index[s] = list(Set(index[s]))
+                self._propagate(index, r_index, s)
 
             z += 1
             if z % 100000 == 0:
                 print "Processed " + str(z) + " triples..."
 
         self._index = index
+
+    def _propagate(self, index, r_index, s, done=[]):
+        if s not in done and r_index.has_key(s):
+            for r in r_index[s]:
+                if index.has_key(r):
+                    index[r].extend(index[s])
+                    index[r] = list(Set(index[r]))
+                    done.append(r)
+                    self._propagate(index, r_index, r, done)
+
 
     def generate_matrix(self):
         if self._matrix != None:
