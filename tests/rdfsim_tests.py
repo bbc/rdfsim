@@ -1,7 +1,7 @@
 from nose.tools import *
 import numpy as np
 import rdfspace
-from rdfspace.space import Space
+from rdfsim.space import Space
 
 def test_init():
     space = Space('tests/example.n3')
@@ -35,3 +35,12 @@ def test_parents():
 def test_distance():
     space = Space('tests/example.n3')
     assert_equal(space.distance('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), 2 / (np.sqrt(3) * np.sqrt(2)))
+
+def test_centroid():
+    space = Space('tests/example.n3')
+    centroid = space.centroid(['http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'])
+    assert_equal(centroid, {
+        'http://dbpedia.org/resource/Category:New_York_City_in_fiction': 0.5,
+        'http://dbpedia.org/resource/Category:Categories_named_after_television_series' : 1.0,
+        'http://dbpedia.org/resource/Category:Foo': 1.0,
+    })

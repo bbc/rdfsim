@@ -56,6 +56,16 @@ class Space(object):
         return list(set(parents))
 
     def distance(self, uri1, uri2):
-        uri1_p = self.parents(uri1, [])
-        uri2_p = self.parents(uri2, [])
+        uri1_p = self.parents(uri1)
+        uri2_p = self.parents(uri2)
         return float(len(list(set(uri1_p) & set(uri2_p)))) / (np.sqrt(len(uri1_p)) * np.sqrt(len(uri2_p))) 
+
+    def centroid(self, uris):
+        parents = {}
+        for uri in uris:
+            for parent in self.parents(uri):
+                if parents.has_key(parent):
+                    parents[parent] += 1.0 / len(uris)
+                else:
+                    parents[parent] = 1.0 / len(uris)
+        return parents
