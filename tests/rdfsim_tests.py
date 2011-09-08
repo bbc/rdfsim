@@ -32,9 +32,9 @@ def test_parents():
     ])
     assert_equal(space.parents('http://dbpedia.org/resource/Category:Foo'), [])
 
-def test_distance():
+def test_distance_uri():
     space = Space('tests/example.n3')
-    assert_equal(space.distance('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), 2 / (np.sqrt(3) * np.sqrt(2)))
+    assert_equal(space.distance_uri('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), 2 / (np.sqrt(3) * np.sqrt(2)))
 
 def test_centroid():
     space = Space('tests/example.n3')

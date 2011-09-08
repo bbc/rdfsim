@@ -55,10 +55,27 @@ class Space(object):
         parents.extend(indirect_parents)
         return list(set(parents))
 
-    def distance(self, uri1, uri2):
-        uri1_p = self.parents(uri1)
-        uri2_p = self.parents(uri2)
-        return float(len(list(set(uri1_p) & set(uri2_p)))) / (np.sqrt(len(uri1_p)) * np.sqrt(len(uri2_p))) 
+    def to_vector(self, uri):
+        v = {}
+        uri_p = self.parents(uri)
+        for p in uri_p:
+            v[p] = 1.0
+        return v
+
+    def distance_uri(self, uri1, uri2):
+        v1 = self.to_vector(uri1)
+        v2 = self.to_vector(uri2)
+        return self.distance(v1, v2)
+
+    def distance(self, v1, v2):
+        common_keys = list(set(v1.keys()) & set(v2.keys()))
+        product = 0.0
+        for key in common_keys:
+            product += v1[key] * v2[key]
+        return product / (self.norm(v1) * self.norm(v2))
+        
+    def norm(self, v):
+        return np.sqrt(sum(np.power(v.values(), 2)))
 
     def centroid(self, uris):
         parents = {}
@@ -69,3 +86,15 @@ class Space(object):
                 else:
                     parents[parent] = 1.0 / len(uris)
         return parents
+
+    def save(self, file):
+        f = open(file, 'w')
+        pickle.dump(self, f)
+        f.close()
+
+    @staticmethod
+    def load(file):
+        f = open(file)
+        space = pickle.load(f)
+        f.close()
+        return space
