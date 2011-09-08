@@ -1,4 +1,5 @@
 from nose.tools import *
+import numpy as np
 import rdfspace
 from rdfspace.space import Space
 
@@ -25,8 +26,12 @@ def test_parents():
         'http://dbpedia.org/resource/Category:Foo',
         'http://dbpedia.org/resource/Category:Categories_named_after_television_series',
     ])
+    assert_equal(space.parents('http://dbpedia.org/resource/Category:Star_Trek'), [
+        'http://dbpedia.org/resource/Category:Foo',
+        'http://dbpedia.org/resource/Category:Categories_named_after_television_series',
+    ])
     assert_equal(space.parents('http://dbpedia.org/resource/Category:Foo'), [])
 
 def test_distance():
     space = Space('tests/example.n3')
-    assert_equal(space.distance('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), 0.81649658092772592)
+    assert_equal(space.distance('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), 2 / (np.sqrt(3) * np.sqrt(2)))

@@ -1,9 +1,4 @@
 import numpy as np
-import scipy.linalg as linalg
-from scipy import *
-from scipy.sparse import *
-from sparsesvd import sparsesvd
-from numpy.linalg import *
 from operator import itemgetter
 from tempfile import mkdtemp
 import RDF
@@ -46,7 +41,9 @@ class Space(object):
 
         self._direct_parents = parents
 
-    def parents(self, uri, done=[]):
+    def parents(self, uri, done=None):
+        if done is None:
+            done = []
         # We stop after 5 recursions, otherwise we accumulate too much generic junk at the top of the hierarchy
         if len(done) > 5 or uri in done or not self._direct_parents.has_key(uri):
             return []
