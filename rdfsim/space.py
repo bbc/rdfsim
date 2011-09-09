@@ -77,14 +77,15 @@ class Space(object):
     def norm(self, v):
         return np.sqrt(sum(np.power(v.values(), 2)))
 
-    def centroid(self, uris):
+    def centroid(self, vs):
         parents = {}
-        for uri in uris:
+        p = float(sum(vs.values()))
+        for uri in vs.keys():
             for parent in self.parents(uri):
                 if parents.has_key(parent):
-                    parents[parent] += 1.0 / len(uris)
+                    parents[parent] += vs[uri] / p
                 else:
-                    parents[parent] = 1.0 / len(uris)
+                    parents[parent] = vs[uri] / p
         return parents
 
     def save(self, file):

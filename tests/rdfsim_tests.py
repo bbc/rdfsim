@@ -38,9 +38,9 @@ def test_distance_uri():
 
 def test_centroid():
     space = Space('tests/example.n3')
-    centroid = space.centroid(['http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'])
+    centroid = space.centroid({'http://dbpedia.org/resource/Category:Futurama': 2, 'http://dbpedia.org/resource/Category:Star_Trek': 1})
     assert_equal(centroid, {
-        'http://dbpedia.org/resource/Category:New_York_City_in_fiction': 0.5,
+        'http://dbpedia.org/resource/Category:New_York_City_in_fiction': 2.0/3,
         'http://dbpedia.org/resource/Category:Categories_named_after_television_series' : 1.0,
         'http://dbpedia.org/resource/Category:Foo': 1.0,
     })
