@@ -7,6 +7,8 @@ import os
 
 class Space(object):
 
+    decay = 0.9
+
     def __init__(self, path_to_rdf, format='ntriples', property='http://www.w3.org/2004/02/skos/core#broader'):
         self._path_to_rdf = 'file:' + path_to_rdf
         self._format = format
@@ -41,25 +43,26 @@ class Space(object):
 
         self._direct_parents = parents
 
-    def parents(self, uri, done=None):
+    def parents(self, uri, done=None, weight=1):
         if done is None:
             done = []
         # We stop after 5 recursions, otherwise we accumulate too much generic junk at the top of the hierarchy
         if len(done) > 5 or uri in done or not self._direct_parents.has_key(uri):
             return []
         done.append(uri)
-        parents = self._direct_parents[uri]
+        parents = [(direct_parent, weight) for direct_parent in self._direct_parents[uri]]
         indirect_parents = []
-        for parent in parents:
-            indirect_parents.extend(self.parents(parent, done))
+        for (parent, weight) in parents:
+            indirect_parents.extend(self.parents(parent, done, weight * Space.decay))
         parents.extend(indirect_parents)
         return list(set(parents))
 
     def to_vector(self, uri):
         v = {}
-        uri_p = self.parents(uri)
-        for p in uri_p:
-            v[p] = 1.0
+        k = 0
+        for (parent, weight) in self.parents(uri):
+            v[parent] = 1.0 * weight
+            k += 1
         return v
 
     def distance_uri(self, uri1, uri2):
@@ -81,11 +84,13 @@ class Space(object):
         parents = {}
         p = float(sum(vs.values()))
         for uri in vs.keys():
-            for parent in self.parents(uri):
+            k = 0
+            for (parent, weight) in self.parents(uri):
                 if parents.has_key(parent):
-                    parents[parent] += vs[uri] / p
+                    parents[parent] += vs[uri] * weight / p
                 else:
-                    parents[parent] = vs[uri] / p
+                    parents[parent] = vs[uri] * weight / p
+                k += 1
         return parents
 
     def save(self, file):
