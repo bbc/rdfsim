@@ -22,25 +22,25 @@ def test_init():
 def test_parents():
     space = Space('tests/example.n3')
     assert_equal(space.parents('http://dbpedia.org/resource/Category:Futurama'), [
-        'http://dbpedia.org/resource/Category:New_York_City_in_fiction',
-        'http://dbpedia.org/resource/Category:Foo',
-        'http://dbpedia.org/resource/Category:Categories_named_after_television_series',
+        ('http://dbpedia.org/resource/Category:Categories_named_after_television_series', 1),
+        ('http://dbpedia.org/resource/Category:New_York_City_in_fiction', 1),
+        ('http://dbpedia.org/resource/Category:Foo', 0.9),
     ])
     assert_equal(space.parents('http://dbpedia.org/resource/Category:Star_Trek'), [
-        'http://dbpedia.org/resource/Category:Foo',
-        'http://dbpedia.org/resource/Category:Categories_named_after_television_series',
+        ('http://dbpedia.org/resource/Category:Categories_named_after_television_series', 1),
+        ('http://dbpedia.org/resource/Category:Foo', 0.9),
     ])
     assert_equal(space.parents('http://dbpedia.org/resource/Category:Foo'), [])
 
 def test_distance_uri():
     space = Space('tests/example.n3')
-    assert_equal(space.distance_uri('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), 2 / (np.sqrt(3) * np.sqrt(2)))
+    assert_equal(space.distance_uri('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), (1 + 0.9 * 0.9) / (np.sqrt(2 + 0.9**2) * np.sqrt(1 + 0.9**2)))
 
 def test_centroid():
     space = Space('tests/example.n3')
     centroid = space.centroid({'http://dbpedia.org/resource/Category:Futurama': 2, 'http://dbpedia.org/resource/Category:Star_Trek': 1})
     assert_equal(centroid, {
         'http://dbpedia.org/resource/Category:New_York_City_in_fiction': 2.0/3,
+        'http://dbpedia.org/resource/Category:Foo': 2*0.9 / 3 + 0.9 / 3,
         'http://dbpedia.org/resource/Category:Categories_named_after_television_series' : 1.0,
-        'http://dbpedia.org/resource/Category:Foo': 1.0,
     })
