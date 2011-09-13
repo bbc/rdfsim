@@ -18,6 +18,7 @@ def test_init():
             'http://dbpedia.org/resource/Category:New_York_City_in_fiction', 
         ],
     })
+    assert_equal(space._size, 3)
 
 def test_parents():
     space = Space('tests/example.n3')
@@ -32,15 +33,16 @@ def test_parents():
     ])
     assert_equal(space.parents('http://dbpedia.org/resource/Category:Foo'), [])
 
+def test_to_vector():
+    space = Space('tests/example.n3')
+    np.testing.assert_array_equal(space.to_vector('http://dbpedia.org/resource/Category:Futurama').todense(), [[1, 1, 0.9]])
+    np.testing.assert_array_equal(space.to_vector('http://dbpedia.org/resource/Category:Star_Trek').todense(), [[1, 0, 0.9]])
+
 def test_distance_uri():
     space = Space('tests/example.n3')
     assert_equal(space.distance_uri('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), (1 + 0.9 * 0.9) / (np.sqrt(2 + 0.9**2) * np.sqrt(1 + 0.9**2)))
 
-def test_centroid():
+def test_centroid_weighted_uris():
     space = Space('tests/example.n3')
-    centroid = space.centroid({'http://dbpedia.org/resource/Category:Futurama': 2, 'http://dbpedia.org/resource/Category:Star_Trek': 1})
-    assert_equal(centroid, {
-        'http://dbpedia.org/resource/Category:New_York_City_in_fiction': 2.0/3,
-        'http://dbpedia.org/resource/Category:Foo': 2*0.9 / 3 + 0.9 / 3,
-        'http://dbpedia.org/resource/Category:Categories_named_after_television_series' : 1.0,
-    })
+    centroid = space.centroid_weighted_uris([('http://dbpedia.org/resource/Category:Futurama', 2), ('http://dbpedia.org/resource/Category:Star_Trek', 1)])
+    np.testing.assert_allclose(np.asarray(centroid.todense()), [[0.5, 1.0 / 3, 3 * 0.9 / 6]])

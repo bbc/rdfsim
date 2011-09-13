@@ -1,6 +1,7 @@
 import numpy as np
 from operator import itemgetter
 from tempfile import mkdtemp
+from scipy.sparse import lil_matrix, csr_matrix, issparse
 import RDF
 import pickle
 import os
@@ -14,6 +15,7 @@ class Space(object):
         self._format = format
         self._property = property
         self._direct_parents = None
+        self._index = {}
         self.generate_index(self._get_statement_stream())
 
     def _get_statement_stream(self):
@@ -26,6 +28,7 @@ class Space(object):
 
         parents = {}
         z = 0
+        k = 0
 
         for statement in stream:
             p = str(statement.predicate.uri)
@@ -36,12 +39,19 @@ class Space(object):
                     parents[s] = [o]
                 else:
                     parents[s].append(o)
+                if not self._index.has_key(o):
+                    self._index[o] = k
+                    k += 1
 
             z += 1
             if z % 100000 == 0:
                 print "Processed " + str(z) + " triples..."
+        self._size = k
 
         self._direct_parents = parents
+
+    def index(self, uri):
+        return self._index[uri]
 
     def parents(self, uri, done=None, weight=1):
         if done is None:
@@ -55,15 +65,14 @@ class Space(object):
         for (parent, weight) in parents:
             indirect_parents.extend(self.parents(parent, done, weight * Space.decay))
         parents.extend(indirect_parents)
+        # FIXME We will count twice parents that appear at different levels
         return list(set(parents))
 
     def to_vector(self, uri):
-        v = {}
-        k = 0
+        v = lil_matrix((1, self._size))
         for (parent, weight) in self.parents(uri):
-            v[parent] = 1.0 * weight
-            k += 1
-        return v
+            v[0, self.index(parent)] += weight
+        return v.tocsr()
 
     def distance_uri(self, uri1, uri2):
         v1 = self.to_vector(uri1)
@@ -71,27 +80,23 @@ class Space(object):
         return self.distance(v1, v2)
 
     def distance(self, v1, v2):
-        common_keys = list(set(v1.keys()) & set(v2.keys()))
-        product = 0.0
-        for key in common_keys:
-            product += v1[key] * v2[key]
-        return product / (self.norm(v1) * self.norm(v2))
-        
-    def norm(self, v):
-        return np.sqrt(sum(np.power(v.values(), 2)))
+        return v1.dot(v2.T)[0, 0] / (self.sparse_norm(v1) * self.sparse_norm(v2))
 
-    def centroid(self, vs):
-        parents = {}
-        p = float(sum(vs.values()))
-        for uri in vs.keys():
-            k = 0
-            for (parent, weight) in self.parents(uri):
-                if parents.has_key(parent):
-                    parents[parent] += vs[uri] * weight / p
-                else:
-                    parents[parent] = vs[uri] * weight / p
-                k += 1
-        return parents
+    def sparse_norm(self, v):
+        if issparse(v):
+            return np.sqrt(v.dot(v.T)[0, 0])
+        else:
+            return np.linalg.norm(v)
+
+    def centroid_weighted_uris(self, vs):
+        vectors = []
+        p = sum([w for (uri, w) in vs])
+        for (uri, weight) in vs:
+            vectors.append(self.to_vector(uri) * weight / p)
+        return self.centroid(vectors)
+
+    def centroid(self, vectors):
+        return np.mean(vectors, axis=0)
 
     def save(self, file):
         f = open(file, 'w')
