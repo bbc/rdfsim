@@ -18,6 +18,11 @@ def test_init():
             'http://dbpedia.org/resource/Category:New_York_City_in_fiction', 
         ],
     })
+    assert_equal(space._index, {
+        'http://dbpedia.org/resource/Category:Categories_named_after_television_series': 0,
+        'http://dbpedia.org/resource/Category:New_York_City_in_fiction': 1,
+        'http://dbpedia.org/resource/Category:Foo': 2,
+    })
     assert_equal(space._size, 3)
 
 def test_parents():

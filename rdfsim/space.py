@@ -9,6 +9,7 @@ import os
 class Space(object):
 
     decay = 0.9
+    max_depth = 5
 
     def __init__(self, path_to_rdf, format='ntriples', property='http://www.w3.org/2004/02/skos/core#broader'):
         self._path_to_rdf = 'file:' + path_to_rdf
@@ -57,7 +58,7 @@ class Space(object):
         if done is None:
             done = []
         # We stop after 5 recursions, otherwise we accumulate too much generic junk at the top of the hierarchy
-        if len(done) > 5 or uri in done or not self._direct_parents.has_key(uri):
+        if len(done) > Space.max_depth or uri in done or not self._direct_parents.has_key(uri):
             return []
         done.append(uri)
         parents = [(direct_parent, weight) for direct_parent in self._direct_parents[uri]]
