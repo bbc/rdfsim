@@ -1,6 +1,5 @@
 from nose.tools import *
 import numpy as np
-import rdfspace
 from rdfsim.space import Space
 
 def test_init():
