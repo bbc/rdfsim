@@ -8,7 +8,7 @@ import os
 
 class Space(object):
 
-    decay = 0.9
+    decay = 1
     max_depth = 5
 
     def __init__(self, path_to_rdf, format='ntriples', property='http://www.w3.org/2004/02/skos/core#broader'):

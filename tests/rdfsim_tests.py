@@ -2,6 +2,9 @@ from nose.tools import *
 import numpy as np
 from rdfsim.space import Space
 
+Space.decay = 0.9
+Space.depth = 5
+
 def test_init():
     space = Space('tests/example.n3')
     assert_equal(space._path_to_rdf, 'file:tests/example.n3')
