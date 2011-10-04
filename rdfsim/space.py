@@ -57,7 +57,7 @@ class Space(object):
     def parents(self, uri, done=None, weight=1):
         if done is None:
             done = []
-        # We stop after 5 recursions, otherwise we accumulate too much generic junk at the top of the hierarchy
+        # We stop after max_depth recursions, otherwise we accumulate too much generic junk at the top of the hierarchy
         if len(done) > Space.max_depth or uri in done or not self._direct_parents.has_key(uri):
             return []
         done.append(uri)
@@ -66,7 +66,6 @@ class Space(object):
         for (parent, weight) in parents:
             indirect_parents.extend(self.parents(parent, done, weight * Space.decay))
         parents.extend(indirect_parents)
-        # FIXME We will count twice parents that appear at different levels
         return list(set(parents))
 
     def to_vector(self, uri):
