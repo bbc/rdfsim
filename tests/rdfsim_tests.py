@@ -1,5 +1,6 @@
 from nose.tools import *
 import numpy as np
+from scipy.sparse import lil_matrix
 from rdfsim.space import Space
 
 Space.decay = 0.9
@@ -48,6 +49,21 @@ def test_to_vector():
 def test_distance_uri():
     space = Space('tests/example.n3')
     assert_equal(space.distance_uri('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), (1 + 0.9 * 0.9) / (np.sqrt(2 + 0.9**2) * np.sqrt(1 + 0.9**2)))
+
+def test_distance_all():
+    space = Space('tests/example.n3')
+    m = lil_matrix((2, 3))
+    m[0,0] = 1
+    m[0,1] = 2
+    m[0,2] = 3
+    m[1,0] = 4
+    m[1,1] = 5
+    m[1,2] = 6
+    v = m[0,:]
+    m = m.tocsr()
+    distances = space.distance_all(m, v)
+    assert_equal(distances[0], 1)
+    assert_equal(distances[1], ((1*4 + 2*5 + 3*6)/(np.sqrt(1 + 2*2 + 3*3)*np.sqrt(4*4 + 5*5 + 6*6))))
 
 def test_centroid_weighted_uris():
     space = Space('tests/example.n3')

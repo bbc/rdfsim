@@ -82,6 +82,14 @@ class Space(object):
     def distance(self, v1, v2):
         return v1.dot(v2.T)[0, 0] / (self.sparse_norm(v1) * self.sparse_norm(v2))
 
+    def distance_all(self, vs, v2):
+        v2_norm = self.sparse_norm(v2)
+        products = vs.dot(v2.T)[:,0]
+        distances = []
+        for i in range(0, products.shape[0]):
+            distances.append(products[i,0] / (self.sparse_norm(vs[i,:]) * v2_norm))
+        return distances
+
     def sparse_norm(self, v):
         if issparse(v):
             return np.sqrt(v.dot(v.T)[0, 0])
