@@ -74,21 +74,21 @@ class Space(object):
             v[0, self.index(parent)] += weight
         return v.tocsr()
 
-    def distance_uri(self, uri1, uri2):
+    def similarity_uri(self, uri1, uri2):
         v1 = self.to_vector(uri1)
         v2 = self.to_vector(uri2)
-        return self.distance(v1, v2)
+        return self.similarity(v1, v2)
 
-    def distance(self, v1, v2):
+    def similarity(self, v1, v2):
         return v1.dot(v2.T)[0, 0] / (self.sparse_norm(v1) * self.sparse_norm(v2))
 
-    def distance_all(self, vs, v2):
+    def similarity_all(self, vs, v2):
         v2_norm = self.sparse_norm(v2)
         products = vs.dot(v2.T)[:,0]
-        distances = []
+        similarities = []
         for i in range(0, products.shape[0]):
-            distances.append(products[i,0] / (self.sparse_norm(vs[i,:]) * v2_norm))
-        return distances
+            similarities.append(products[i,0] / (self.sparse_norm(vs[i,:]) * v2_norm))
+        return similarities
 
     def sparse_norm(self, v):
         if issparse(v):
@@ -98,13 +98,21 @@ class Space(object):
 
     def centroid_weighted_uris(self, vs):
         vectors = []
-        p = sum([w for (uri, w) in vs])
         for (uri, weight) in vs:
-            vectors.append(self.to_vector(uri) * weight / p)
+            vectors.append(self.to_vector(uri) * weight)
         return self.centroid(vectors)
 
     def centroid(self, vectors):
         return np.mean(vectors, axis=0)
+
+    def sum_weighted_uris(self, vs):
+        vectors = []
+        for (uri, weight) in vs:
+            vectors.append(self.to_vector(uri) * weight)
+        return self.sum(vectors)
+
+    def sum(self, vectors):
+        return np.sum(vectors, axis=0)
 
     def save(self, file):
         f = open(file, 'w')

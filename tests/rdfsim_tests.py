@@ -46,11 +46,11 @@ def test_to_vector():
     np.testing.assert_array_equal(space.to_vector('http://dbpedia.org/resource/Category:Futurama').todense(), [[1, 1, 0.9]])
     np.testing.assert_array_equal(space.to_vector('http://dbpedia.org/resource/Category:Star_Trek').todense(), [[1, 0, 0.9]])
 
-def test_distance_uri():
+def test_similarity_uri():
     space = Space('tests/example.n3')
-    assert_equal(space.distance_uri('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), (1 + 0.9 * 0.9) / (np.sqrt(2 + 0.9**2) * np.sqrt(1 + 0.9**2)))
+    assert_equal(space.similarity_uri('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), (1 + 0.9 * 0.9) / (np.sqrt(2 + 0.9**2) * np.sqrt(1 + 0.9**2)))
 
-def test_distance_all():
+def test_similarity_all():
     space = Space('tests/example.n3')
     m = lil_matrix((2, 3))
     m[0,0] = 1
@@ -61,11 +61,16 @@ def test_distance_all():
     m[1,2] = 6
     v = m[0,:]
     m = m.tocsr()
-    distances = space.distance_all(m, v)
-    assert_equal(distances[0], 1)
-    assert_equal(distances[1], ((1*4 + 2*5 + 3*6)/(np.sqrt(1 + 2*2 + 3*3)*np.sqrt(4*4 + 5*5 + 6*6))))
+    similarities = space.similarity_all(m, v)
+    assert_equal(similarities[0], 1)
+    assert_equal(similarities[1], ((1*4 + 2*5 + 3*6)/(np.sqrt(1 + 2*2 + 3*3)*np.sqrt(4*4 + 5*5 + 6*6))))
 
 def test_centroid_weighted_uris():
     space = Space('tests/example.n3')
     centroid = space.centroid_weighted_uris([('http://dbpedia.org/resource/Category:Futurama', 2), ('http://dbpedia.org/resource/Category:Star_Trek', 1)])
-    np.testing.assert_allclose(np.asarray(centroid.todense()), [[0.5, 1.0 / 3, 3 * 0.9 / 6]])
+    np.testing.assert_allclose(np.asarray(centroid.todense()), [[1.5, 1.0, 3 * 0.9 / 2]])
+
+def test_sum_weighted_uris():
+    space = Space('tests/example.n3')
+    s = space.sum_weighted_uris([('http://dbpedia.org/resource/Category:Futurama', 2), ('http://dbpedia.org/resource/Category:Star_Trek', 1)])
+    np.testing.assert_allclose(np.asarray(s.todense()), [[3, 2, 3 * 0.9]])
