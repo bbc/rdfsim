@@ -70,8 +70,12 @@ class Space(object):
 
     def to_vector(self, uri):
         v = lil_matrix((1, self._size))
+        norm = 0.0
         for (parent, weight) in self.parents(uri):
             v[0, self.index(parent)] += weight
+            norm += weight ** 2
+        norm = np.sqrt(norm)
+        v /= norm
         return v.tocsr()
 
     def similarity_uri(self, uri1, uri2):

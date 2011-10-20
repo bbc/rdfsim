@@ -43,8 +43,8 @@ def test_parents():
 
 def test_to_vector():
     space = Space('tests/example.n3')
-    np.testing.assert_array_equal(space.to_vector('http://dbpedia.org/resource/Category:Futurama').todense(), [[1, 1, 0.9]])
-    np.testing.assert_array_equal(space.to_vector('http://dbpedia.org/resource/Category:Star_Trek').todense(), [[1, 0, 0.9]])
+    np.testing.assert_array_equal(space.to_vector('http://dbpedia.org/resource/Category:Futurama').todense(), [[1/np.sqrt(2 + 0.9**2), 1/np.sqrt(2 + 0.9**2), 0.9/np.sqrt(2 + 0.9**2)]])
+    np.testing.assert_array_equal(space.to_vector('http://dbpedia.org/resource/Category:Star_Trek').todense(), [[1/np.sqrt(1 + 0.9**2), 0, 0.9/np.sqrt(1 + 0.9**2)]])
 
 def test_similarity_uri():
     space = Space('tests/example.n3')
@@ -68,9 +68,9 @@ def test_similarity_all():
 def test_centroid_weighted_uris():
     space = Space('tests/example.n3')
     centroid = space.centroid_weighted_uris([('http://dbpedia.org/resource/Category:Futurama', 2), ('http://dbpedia.org/resource/Category:Star_Trek', 1)])
-    np.testing.assert_allclose(np.asarray(centroid.todense()), [[1.5, 1.0, 3 * 0.9 / 2]])
+    np.testing.assert_allclose(np.asarray(centroid.todense()), [[(2/np.sqrt(2 + 0.9**2) + 1/np.sqrt(1 + 0.9**2))/2, (2/np.sqrt(2 + 0.9**2))/2, (2*0.9/np.sqrt(2 + 0.9**2) + 0.9/np.sqrt(1 + 0.9**2))/2]])
 
 def test_sum_weighted_uris():
     space = Space('tests/example.n3')
     s = space.sum_weighted_uris([('http://dbpedia.org/resource/Category:Futurama', 2), ('http://dbpedia.org/resource/Category:Star_Trek', 1)])
-    np.testing.assert_allclose(np.asarray(s.todense()), [[3, 2, 3 * 0.9]])
+    np.testing.assert_allclose(np.asarray(s.todense()), [[2/np.sqrt(2 + 0.9**2) + 1/np.sqrt(1 + 0.9**2), 2/np.sqrt(2 + 0.9**2), 2*0.9/np.sqrt(2 + 0.9**2) + 0.9/np.sqrt(1 + 0.9**2)]])
