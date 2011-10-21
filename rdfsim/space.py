@@ -72,8 +72,9 @@ class Space(object):
         v = lil_matrix((1, self._size))
         norm = 0.0
         for (parent, weight) in self.parents(uri):
+            norm -= v[0, self.index(parent)] ** 2
             v[0, self.index(parent)] += weight
-            norm += weight ** 2
+            norm += v[0, self.index(parent)] ** 2
         norm = np.sqrt(norm)
         v /= norm
         return v.tocsr()
