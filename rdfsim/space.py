@@ -70,11 +70,14 @@ class Space(object):
 
     def to_vector(self, uri):
         v = lil_matrix((1, self._size))
-        norm = 0.0
+        indices = []
         for (parent, weight) in self.parents(uri):
-            norm -= v[0, self.index(parent)] ** 2
-            v[0, self.index(parent)] += weight
-            norm += v[0, self.index(parent)] ** 2
+            index = self.index(parent)
+            v[0, index] += weight
+            indices.append(index)
+        norm = 0.0
+        for index in indices:
+            norm += v[0, index] ** 2
         norm = np.sqrt(norm)
         v /= norm
         return v.tocsr()
