@@ -8,8 +8,8 @@ import os
 
 class Space(object):
 
-    decay = 1
-    max_depth = 5
+    decay = 0.9
+    max_depth = 10
 
     def __init__(self, path_to_rdf, format='ntriples', property='http://www.w3.org/2004/02/skos/core#broader'):
         self._path_to_rdf = 'file:' + path_to_rdf
@@ -95,7 +95,7 @@ class Space(object):
         products = vs.dot(v2.T)[:,0]
         similarities = []
         for i in range(0, products.shape[0]):
-            similarities.append(products[i,0] / (self.sparse_norm(vs[i,:]) * v2_norm))
+            similarities.append(products[i,0])
         return similarities
 
     def sparse_norm(self, v):
