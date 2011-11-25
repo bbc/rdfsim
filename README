@@ -42,6 +42,11 @@ where max_depth and decay are two parameters, which can be used to influence
 how much importance we attach to ancestors that are high in the
 category hierarchy.
 
+They can be specified as follows:
+
+>>> Space.max_depth = 8
+>>> Space.decay = 0.9
+
 Licensing terms and authorship
 ------------------------------
 
