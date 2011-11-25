@@ -48,17 +48,17 @@ def test_to_vector():
 
 def test_similarity_uri():
     space = Space('tests/example.n3')
-    assert_equal(space.similarity_uri('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), (1 + 0.9 * 0.9) / (np.sqrt(2 + 0.9**2) * np.sqrt(1 + 0.9**2)))
+    np.testing.assert_allclose(space.similarity_uri('http://dbpedia.org/resource/Category:Futurama', 'http://dbpedia.org/resource/Category:Star_Trek'), (1 + 0.9 * 0.9) / (np.sqrt(2 + 0.9**2) * np.sqrt(1 + 0.9**2)))
 
 def test_similarity_all():
     space = Space('tests/example.n3')
     m = lil_matrix((2, 3))
-    m[0,0] = 1
-    m[0,1] = 2
-    m[0,2] = 3
-    m[1,0] = 4
-    m[1,1] = 5
-    m[1,2] = 6
+    m[0,0] = 1 / np.sqrt(1 + 2*2 + 3*3)
+    m[0,1] = 2 / np.sqrt(1 + 2*2 + 3*3)
+    m[0,2] = 3 / np.sqrt(1 + 2*2 + 3*3)
+    m[1,0] = 4 / np.sqrt(4*4 + 5*5 + 6*6)
+    m[1,1] = 5 / np.sqrt(4*4 + 5*5 + 6*6)
+    m[1,2] = 6 / np.sqrt(4*4 + 5*5 + 6*6)
     v = m[0,:]
     m = m.tocsr()
     similarities = space.similarity_all(m, v)
@@ -68,7 +68,7 @@ def test_similarity_all():
 def test_centroid_weighted_uris():
     space = Space('tests/example.n3')
     centroid = space.centroid_weighted_uris([('http://dbpedia.org/resource/Category:Futurama', 2), ('http://dbpedia.org/resource/Category:Star_Trek', 1)])
-    np.testing.assert_allclose(np.asarray(centroid.todense()), [[(2/np.sqrt(2 + 0.9**2) + 1/np.sqrt(1 + 0.9**2))/2, (2/np.sqrt(2 + 0.9**2))/2, (2*0.9/np.sqrt(2 + 0.9**2) + 0.9/np.sqrt(1 + 0.9**2))/2]])
+    np.testing.assert_allclose(np.asarray(centroid.todense()), [[(2/np.sqrt(2 + 0.9**2) + 1/np.sqrt(1 + 0.9**2))/2, (1/np.sqrt(2 + 0.9**2)), (2*0.9/np.sqrt(2 + 0.9**2) + 0.9/np.sqrt(1 + 0.9**2))/2]])
 
 def test_sum_weighted_uris():
     space = Space('tests/example.n3')

@@ -88,21 +88,14 @@ class Space(object):
         return self.similarity(v1, v2)
 
     def similarity(self, v1, v2):
-        return v1.dot(v2.T)[0, 0] / (self.sparse_norm(v1) * self.sparse_norm(v2))
+        return v1.dot(v2.T)[0, 0]
 
     def similarity_all(self, vs, v2):
-        v2_norm = self.sparse_norm(v2)
         products = vs.dot(v2.T)[:,0]
         similarities = []
         for i in range(0, products.shape[0]):
             similarities.append(products[i,0])
         return similarities
-
-    def sparse_norm(self, v):
-        if issparse(v):
-            return np.sqrt(v.dot(v.T)[0, 0])
-        else:
-            return np.linalg.norm(v)
 
     def centroid_weighted_uris(self, vs):
         vectors = []
