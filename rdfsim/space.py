@@ -1,3 +1,17 @@
+# Copyright (c) 2011 British Broadcasting Corporation
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import numpy as np
 from operator import itemgetter
 from tempfile import mkdtemp
@@ -7,6 +21,7 @@ import pickle
 import os
 
 class Space(object):
+    """ Base class for a vector space derived from a RDF hierarchy """
 
     decay = 0.9
     max_depth = 10
@@ -52,12 +67,13 @@ class Space(object):
         self._direct_parents = parents
 
     def index(self, uri):
+        """ Gets the index of a particular URI in the vector space """
         return self._index[uri]
 
     def parents(self, uri, done=None, weight=1):
+        """ Retrieves the parents of a particular URI """
         if done is None:
             done = []
-        # We stop after max_depth recursions, otherwise we accumulate too much generic junk at the top of the hierarchy
         if len(done) > Space.max_depth or uri in done or not self._direct_parents.has_key(uri):
             return []
         done.append(uri)
@@ -69,6 +85,7 @@ class Space(object):
         return list(set(parents))
 
     def to_vector(self, uri):
+        """ Converts a URI to a vector """
         v = lil_matrix((1, self._size))
         indices = []
         for (parent, weight) in self.parents(uri):
@@ -83,14 +100,17 @@ class Space(object):
         return v.tocsr()
 
     def similarity_uri(self, uri1, uri2):
+        """ Derives a cosine similarity between two URIs """
         v1 = self.to_vector(uri1)
         v2 = self.to_vector(uri2)
         return self.similarity(v1, v2)
 
     def similarity(self, v1, v2):
+        """ Derives a cosine similarity between two normalized vectors """
         return v1.dot(v2.T)[0, 0]
 
     def similarity_all(self, vs, v2):
+        """ Derives a set of cosine similarity between a set of vectors and a vector """
         products = vs.dot(v2.T)[:,0]
         similarities = []
         for i in range(0, products.shape[0]):
@@ -98,30 +118,36 @@ class Space(object):
         return similarities
 
     def centroid_weighted_uris(self, vs):
+        """ Returns the centroid of a set of weighted vectors """
         vectors = []
         for (uri, weight) in vs:
             vectors.append(self.to_vector(uri) * weight)
         return self.centroid(vectors)
 
     def centroid(self, vectors):
+        """ Returns the centroid of a set of vectors """
         return np.mean(vectors, axis=0)
 
     def sum_weighted_uris(self, vs):
+        """ Returns the sum of weighted vectors """
         vectors = []
         for (uri, weight) in vs:
             vectors.append(self.to_vector(uri) * weight)
         return self.sum(vectors)
 
     def sum(self, vectors):
+        """ Returns the sum of vectors """
         return np.sum(vectors, axis=0)
 
     def save(self, file):
+        """ Save the vector space in a file """
         f = open(file, 'w')
         pickle.dump(self, f)
         f.close()
 
     @staticmethod
     def load(file):
+        """ Load a space instance from a file """
         f = open(file)
         space = pickle.load(f)
         f.close()
