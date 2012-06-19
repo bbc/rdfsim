@@ -139,6 +139,12 @@ class Space(object):
         """ Returns the sum of vectors """
         return np.sum(vectors, axis=0)
 
+    def sparse_norm(self, v):
+        if issparse(v):
+            return np.sqrt(v.dot(v.T)[0, 0])
+        else:
+            return np.linalg.norm(v)
+
     def save(self, file):
         """ Save the vector space in a file """
         f = open(file, 'w')
