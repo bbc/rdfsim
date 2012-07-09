@@ -24,7 +24,7 @@ class Space(object):
     """ Base class for a vector space derived from a RDF hierarchy """
 
     decay = 0.9
-    max_depth = 20
+    max_depth = 10
 
     def __init__(self, path_to_rdf, format='ntriples', property='http://www.w3.org/2004/02/skos/core#broader'):
         self._path_to_rdf = 'file:' + path_to_rdf
