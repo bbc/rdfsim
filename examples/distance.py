@@ -1,5 +1,5 @@
-import rdfspace
-from rdfspace.space import Space
+import rdfsim
+from rdfsim.space import Space
 
 space = Space('skos_categories_1000.nt', ignored_predicates=['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'])
 
