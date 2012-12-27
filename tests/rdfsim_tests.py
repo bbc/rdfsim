@@ -55,6 +55,27 @@ def test_parents():
     ])
     assert_equal(space.parents('http://dbpedia.org/resource/Category:Foo'), [])
 
+    space = Space('tests/london.n3')
+    Space.max_depth = 0
+    assert_equal(space.parents('http://dbpedia.org/resource/Category:London'), [
+        ('http://dbpedia.org/resource/Category:NUTS_1_statistical_regions_of_England', 1),
+        ('http://dbpedia.org/resource/Category:M4_corridor', 1)
+    ])
+    Space.max_depth = 1
+    print space.parents('http://dbpedia.org/resource/Category:London')
+    assert_equal(space.parents('http://dbpedia.org/resource/Category:London'), [
+        ('http://dbpedia.org/resource/Category:Regional_planning_in_England', 0.9),
+        ('http://dbpedia.org/resource/Category:Regions_of_England', 0.9),
+        ('http://dbpedia.org/resource/Category:NUTS_1_statistical_regions_of_the_European_Union', 0.9),
+        ('http://dbpedia.org/resource/Category:England', 0.9),
+        ('http://dbpedia.org/resource/Category:NUTS_1_statistical_regions_of_the_United_Kingdom', 0.9),
+        ('http://dbpedia.org/resource/Category:Regions_of_Wales', 0.9),
+        ('http://dbpedia.org/resource/Category:NUTS_1_statistical_regions_of_England', 1),
+        ('http://dbpedia.org/resource/Category:Local_government_in_England', 0.9),
+        ('http://dbpedia.org/resource/Category:M4_corridor', 1)
+    ])
+    Space.max_depth = 10
+
 def test_to_vector():
     space = Space('tests/example.n3')
     np.testing.assert_array_equal(space.to_vector('http://dbpedia.org/resource/Category:Futurama').todense(), [[1/np.sqrt(2 + 0.9**2), 1/np.sqrt(2 + 0.9**2), 0.9/np.sqrt(2 + 0.9**2)]])

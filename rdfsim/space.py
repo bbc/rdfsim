@@ -80,7 +80,7 @@ class Space(object):
         parents = [(direct_parent, weight) for direct_parent in self._direct_parents[uri]]
         indirect_parents = []
         for (parent, weight) in parents:
-            indirect_parents.extend(self.parents(parent, done, weight * Space.decay))
+            indirect_parents.extend(self.parents(parent, list(done), weight * Space.decay))
         parents.extend(indirect_parents)
         return list(set(parents))
 
