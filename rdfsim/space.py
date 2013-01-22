@@ -32,6 +32,7 @@ class Space(object):
         self._property = property
         self._direct_parents = None
         self._index = {}
+        self._uri_to_vector = {}
         self.generate_index(self._get_statement_stream())
 
     def _get_statement_stream(self):
@@ -86,6 +87,8 @@ class Space(object):
 
     def to_vector(self, uri):
         """ Converts a URI to a vector """
+        if self._uri_to_vector.has_key(uri):
+            return self._uri_to_vector[uri]
         v = lil_matrix((1, self._size))
         indices = []
         for (parent, weight) in self.parents(uri):
@@ -97,7 +100,14 @@ class Space(object):
             norm += v[0, index] ** 2
         norm = np.sqrt(norm)
         v /= norm
-        return v.tocsr()
+        v = v.tocsr()
+        self._uri_to_vector[uri] = v
+        return v
+
+    def cache_vectors(self):
+        """ Pre-caches all category vectors in memory """
+        for uri in self._direct_parents.keys():
+            self.to_vector(uri)
 
     def similarity_uri(self, uri1, uri2):
         """ Derives a cosine similarity between two URIs """

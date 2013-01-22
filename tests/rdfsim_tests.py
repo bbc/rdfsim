@@ -80,6 +80,18 @@ def test_to_vector():
     space = Space('tests/example.n3')
     np.testing.assert_array_equal(space.to_vector('http://dbpedia.org/resource/Category:Futurama').todense(), [[1/np.sqrt(2 + 0.9**2), 1/np.sqrt(2 + 0.9**2), 0.9/np.sqrt(2 + 0.9**2)]])
     np.testing.assert_array_equal(space.to_vector('http://dbpedia.org/resource/Category:Star_Trek').todense(), [[1/np.sqrt(1 + 0.9**2), 0, 0.9/np.sqrt(1 + 0.9**2)]])
+    assert space._uri_to_vector.has_key('http://dbpedia.org/resource/Category:Futurama') # Checking that we cached the vectors when generating them
+    assert space._uri_to_vector.has_key('http://dbpedia.org/resource/Category:Star_Trek')
+    assert_equal(space._uri_to_vector['http://dbpedia.org/resource/Category:Futurama'], space.to_vector('http://dbpedia.org/resource/Category:Futurama'))
+    assert_equal(space._uri_to_vector['http://dbpedia.org/resource/Category:Star_Trek'], space.to_vector('http://dbpedia.org/resource/Category:Star_Trek'))
+
+def test_cache_vectors():
+    space = Space('tests/example.n3')
+    space.cache_vectors()
+    assert space._uri_to_vector.has_key('http://dbpedia.org/resource/Category:Futurama') # Checking that we cached the vectors
+    assert space._uri_to_vector.has_key('http://dbpedia.org/resource/Category:Star_Trek')
+    assert_equal(space._uri_to_vector['http://dbpedia.org/resource/Category:Futurama'], space.to_vector('http://dbpedia.org/resource/Category:Futurama'))
+    assert_equal(space._uri_to_vector['http://dbpedia.org/resource/Category:Star_Trek'], space.to_vector('http://dbpedia.org/resource/Category:Star_Trek'))
 
 def test_similarity_uri():
     space = Space('tests/example.n3')
