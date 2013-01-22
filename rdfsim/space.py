@@ -106,8 +106,14 @@ class Space(object):
 
     def cache_vectors(self):
         """ Pre-caches all category vectors in memory """
+        # TODO: Changes of max_depth and decay parameter won't be
+        # taken into account anymore, once a vector is cached
+        z = 0
         for uri in self._direct_parents.keys():
             self.to_vector(uri)
+            z += 1
+            if z % 100 == 0:
+                print "Generated " + str(z) + " category vectors..."
 
     def similarity_uri(self, uri1, uri2):
         """ Derives a cosine similarity between two URIs """
