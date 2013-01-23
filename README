@@ -7,20 +7,22 @@ Getting started
 ---------------
 
 Running the tests:
- $ nosetests
+
+    $ nosetests
 
 Installing:
- $ python setup.py install
+ 
+    $ python setup.py install
 
 Example use
 -----------
 
- $ wget http://downloads.dbpedia.org/3.7/en/skos_categories_en.nt.bz2
- $ bunzip2 skos_categories_en.nt.bz2
- $ python
- >>> from rdfsim.space import Space
- >>> space = Space('skos_categories_en.nt')
- >>> space.similarity_uri(category1, category2)
+    $ wget http://downloads.dbpedia.org/3.7/en/skos_categories_en.nt.bz2
+    $ bunzip2 skos_categories_en.nt.bz2
+    $ python
+    >>> from rdfsim.space import Space
+    >>> space = Space('skos_categories_en.nt')
+    >>> space.similarity_uri(category1, category2)
 
 Constructing a vector space for the entire DBpedia SKOS category
 hierarchy (3M triples) takes a couple of minutes on a commodity laptop, 
@@ -36,7 +38,7 @@ parents(t, k) at a level k. We construct a vector for each t in a space
 where each dimension corresponds to a topic d in the hierarchy. The value
 of t on dimension d is defined as follows:
 
-t_d = \sum_{k = 0}^{max_depth} \sum_{d \in parents(t, k)} decay^k
+    t_d = \sum_{k = 0}^{max_depth} \sum_{d \in parents(t, k)} decay^k
 
 where max_depth and decay are two parameters, which can be used to influence
 how much importance we attach to ancestors that are high in the
@@ -44,8 +46,8 @@ category hierarchy.
 
 They can be specified as follows:
 
->>> Space.max_depth = 8
->>> Space.decay = 0.9
+    >>> Space.max_depth = 8
+    >>> Space.decay = 0.9
 
 Licensing terms and authorship
 ------------------------------
