@@ -96,7 +96,7 @@ class Space(object):
             v[0, index] += weight
             indices.append(index)
         norm = 0.0
-        for index in indices:
+        for index in list(set(indices)):
             norm += v[0, index] ** 2
         norm = np.sqrt(norm)
         v /= norm
