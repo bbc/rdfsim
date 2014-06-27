@@ -142,7 +142,7 @@ class Space(object):
 
     def centroid(self, vectors):
         """ Returns the centroid of a set of vectors """
-        return np.mean(vectors, axis=0)
+        return np.sum(vectors, axis=0) / float(len(vectors))
 
     def sum_weighted_uris(self, vs):
         """ Returns the sum of weighted vectors """
