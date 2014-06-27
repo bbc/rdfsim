@@ -7,7 +7,7 @@ except ImportError:
 
 setup(
     name='rdfsim',
-    version='0.1',
+    version='0.3',
     description='Modelling RDF data as a vector space',
     author='Yves Raimond',
     author_email='yves.raimond@bbc.co.uk',
